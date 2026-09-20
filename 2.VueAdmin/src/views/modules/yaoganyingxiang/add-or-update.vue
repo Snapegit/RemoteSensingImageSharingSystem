@@ -1,0 +1,798 @@
+<template>
+	<div class="addEdit-block" :style='{"minHeight":"calc(100vh - 200px)","padding":"0px 0 30px","margin":"0 auto","color":"#8e99a2","background":"none","width":"calc(100% - 0px)","fontSize":"14px","height":"100%"}'>
+		<el-form
+			:style='{"padding":"30px 5%","borderColor":"#f6f6f6","alignItems":"flex-start","borderRadius":"4px","flexWrap":"wrap","background":"rgba(255,255,255,.9)","borderWidth":"2px","display":"flex","fontSize":"inherit","borderStyle":"solid"}'
+			class="add-update-preview"
+			ref="ruleForm"
+			:model="ruleForm"
+			:rules="rules"
+			label-width="200px"
+		>
+			<template >
+				<el-form-item :style='{"padding":"2px 0","margin":"0 auto 20px","color":"inherit","borderRadius":"4px","background":"none","width":"100%","fontSize":"inherit"}' class="input" v-if="type!='info'"  label="影像名称" prop="yingxiangmingcheng">
+					<el-input v-model="ruleForm.yingxiangmingcheng" placeholder="影像名称" clearable  :readonly="ro.yingxiangmingcheng"></el-input>
+				</el-form-item>
+				<el-form-item :style='{"padding":"2px 0","margin":"0 auto 20px","color":"inherit","borderRadius":"4px","background":"none","width":"100%","fontSize":"inherit"}' v-else class="input" label="影像名称" prop="yingxiangmingcheng">
+					<el-input v-model="ruleForm.yingxiangmingcheng" placeholder="影像名称" readonly></el-input>
+				</el-form-item>
+				<el-form-item :style='{"padding":"2px 0","margin":"0 auto 20px","color":"inherit","borderRadius":"4px","background":"none","width":"100%","fontSize":"inherit"}' class="upload" v-if="type!='info' && !ro.tupian" label="图片" prop="tupian">
+					<file-upload
+						tip="点击上传图片"
+						action="file/upload"
+						:limit="3"
+						:multiple="true"
+						:fileUrls="ruleForm.tupian?ruleForm.tupian:''"
+						@change="tupianUploadChange"
+					></file-upload>
+				</el-form-item>
+				<el-form-item :style='{"padding":"2px 0","margin":"0 auto 20px","color":"inherit","borderRadius":"4px","background":"none","width":"100%","fontSize":"inherit"}' class="upload" v-else-if="ruleForm.tupian" label="图片" prop="tupian">
+					<img v-if="ruleForm.tupian.substring(0,4)=='http'" class="upload-img" style="margin-right:20px;" v-bind:key="index" :src="ruleForm.tupian.split(',')[0]" width="100" height="100">
+					<img v-else class="upload-img" style="margin-right:20px;" v-bind:key="index" v-for="(item,index) in ruleForm.tupian.split(',')" :src="$base.url+item" width="100" height="100">
+				</el-form-item>
+				<el-form-item :style='{"padding":"2px 0","margin":"0 auto 20px","color":"inherit","borderRadius":"4px","background":"none","width":"100%","fontSize":"inherit"}' class="select" v-if="type!='info'"  label="影像分类" prop="yingxiangfenlei">
+					<el-select :disabled="ro.yingxiangfenlei" v-model="ruleForm.yingxiangfenlei" placeholder="请选择影像分类" >
+						<el-option
+							v-for="(item,index) in yingxiangfenleiOptions"
+							v-bind:key="index"
+							:label="item"
+							:value="item">
+						</el-option>
+					</el-select>
+				</el-form-item>
+				<el-form-item :style='{"padding":"2px 0","margin":"0 auto 20px","color":"inherit","borderRadius":"4px","background":"none","width":"100%","fontSize":"inherit"}' v-else class="input" label="影像分类" prop="yingxiangfenlei">
+					<el-input v-model="ruleForm.yingxiangfenlei"
+						placeholder="影像分类" readonly></el-input>
+				</el-form-item>
+				<el-form-item :style='{"padding":"2px 0","margin":"0 auto 20px","color":"inherit","borderRadius":"4px","background":"none","width":"100%","fontSize":"inherit"}' class="input" v-if="type!='info'"  label="卫星数据集" prop="weixingshujuji">
+					<el-input v-model="ruleForm.weixingshujuji" placeholder="卫星数据集" clearable  :readonly="ro.weixingshujuji"></el-input>
+				</el-form-item>
+				<el-form-item :style='{"padding":"2px 0","margin":"0 auto 20px","color":"inherit","borderRadius":"4px","background":"none","width":"100%","fontSize":"inherit"}' v-else class="input" label="卫星数据集" prop="weixingshujuji">
+					<el-input v-model="ruleForm.weixingshujuji" placeholder="卫星数据集" readonly></el-input>
+				</el-form-item>
+				<el-form-item :style='{"padding":"2px 0","margin":"0 auto 20px","color":"inherit","borderRadius":"4px","background":"none","width":"100%","fontSize":"inherit"}' class="input" v-if="type!='info'"  label="云量" prop="yunliang">
+					<el-input-number v-model="ruleForm.yunliang" placeholder="云量" :disabled="ro.yunliang"></el-input-number>
+				</el-form-item>
+				<el-form-item :style='{"padding":"2px 0","margin":"0 auto 20px","color":"inherit","borderRadius":"4px","background":"none","width":"100%","fontSize":"inherit"}' v-else class="input" label="云量" prop="yunliang">
+					<el-input v-model="ruleForm.yunliang" placeholder="云量" readonly></el-input>
+				</el-form-item>
+				<el-form-item :style='{"padding":"2px 0","margin":"0 auto 20px","color":"inherit","borderRadius":"4px","background":"none","width":"100%","fontSize":"inherit"}' class="input" v-if="type!='info'"  label="分辨率" prop="fenbianlv">
+					<el-input v-model.number="ruleForm.fenbianlv" placeholder="分辨率" clearable  :readonly="ro.fenbianlv"></el-input>
+				</el-form-item>
+				<el-form-item :style='{"padding":"2px 0","margin":"0 auto 20px","color":"inherit","borderRadius":"4px","background":"none","width":"100%","fontSize":"inherit"}' v-else class="input" label="分辨率" prop="fenbianlv">
+					<el-input v-model="ruleForm.fenbianlv" placeholder="分辨率" readonly></el-input>
+				</el-form-item>
+				<el-form-item :style='{"padding":"2px 0","margin":"0 auto 20px","color":"inherit","borderRadius":"4px","background":"none","width":"100%","fontSize":"inherit"}' class="input" v-if="type!='info'"  label="地区" prop="diqu">
+					<el-input v-model="ruleForm.diqu" placeholder="地区" clearable  :readonly="ro.diqu"></el-input>
+				</el-form-item>
+				<el-form-item :style='{"padding":"2px 0","margin":"0 auto 20px","color":"inherit","borderRadius":"4px","background":"none","width":"100%","fontSize":"inherit"}' v-else class="input" label="地区" prop="diqu">
+					<el-input v-model="ruleForm.diqu" placeholder="地区" readonly></el-input>
+				</el-form-item>
+				<el-form-item :style='{"padding":"2px 0","margin":"0 auto 20px","color":"inherit","borderRadius":"4px","background":"none","width":"100%","fontSize":"inherit"}' class="date" v-if="type!='info'" label="发布时间" prop="fabushijian">
+					<el-date-picker
+						format="yyyy 年 MM 月 dd 日"
+						value-format="yyyy-MM-dd"
+						v-model="ruleForm.fabushijian" 
+						type="date"
+						:readonly="ro.fabushijian"
+						placeholder="发布时间"
+					></el-date-picker> 
+				</el-form-item>
+				<el-form-item :style='{"padding":"2px 0","margin":"0 auto 20px","color":"inherit","borderRadius":"4px","background":"none","width":"100%","fontSize":"inherit"}' class="input" v-else-if="ruleForm.fabushijian" label="发布时间" prop="fabushijian">
+					<el-input v-model="ruleForm.fabushijian" placeholder="发布时间" readonly></el-input>
+				</el-form-item>
+				<el-form-item :style='{"padding":"2px 0","margin":"0 auto 20px","color":"inherit","borderRadius":"4px","background":"none","width":"100%","fontSize":"inherit"}' class="input" v-if="type!='info'"  label="部门" prop="bumen">
+					<el-input v-model="ruleForm.bumen" placeholder="部门" clearable  :readonly="ro.bumen"></el-input>
+				</el-form-item>
+				<el-form-item :style='{"padding":"2px 0","margin":"0 auto 20px","color":"inherit","borderRadius":"4px","background":"none","width":"100%","fontSize":"inherit"}' v-else class="input" label="部门" prop="bumen">
+					<el-input v-model="ruleForm.bumen" placeholder="部门" readonly></el-input>
+				</el-form-item>
+				<el-form-item :style='{"padding":"2px 0","margin":"0 auto 20px","color":"inherit","borderRadius":"4px","background":"none","width":"100%","fontSize":"inherit"}' class="input" v-if="type!='info'"  label="部门账号" prop="bumenzhanghao">
+					<el-input v-model="ruleForm.bumenzhanghao" placeholder="部门账号" clearable  :readonly="ro.bumenzhanghao"></el-input>
+				</el-form-item>
+				<el-form-item :style='{"padding":"2px 0","margin":"0 auto 20px","color":"inherit","borderRadius":"4px","background":"none","width":"100%","fontSize":"inherit"}' v-else class="input" label="部门账号" prop="bumenzhanghao">
+					<el-input v-model="ruleForm.bumenzhanghao" placeholder="部门账号" readonly></el-input>
+				</el-form-item>
+				<el-form-item :style='{"padding":"2px 0","margin":"0 auto 20px","color":"inherit","borderRadius":"4px","background":"none","width":"100%","fontSize":"inherit"}' class="input" v-if="type!='info'"  label="管理员姓名" prop="guanliyuanxingming">
+					<el-input v-model="ruleForm.guanliyuanxingming" placeholder="管理员姓名" clearable  :readonly="ro.guanliyuanxingming"></el-input>
+				</el-form-item>
+				<el-form-item :style='{"padding":"2px 0","margin":"0 auto 20px","color":"inherit","borderRadius":"4px","background":"none","width":"100%","fontSize":"inherit"}' v-else class="input" label="管理员姓名" prop="guanliyuanxingming">
+					<el-input v-model="ruleForm.guanliyuanxingming" placeholder="管理员姓名" readonly></el-input>
+				</el-form-item>
+				<el-form-item :style='{"padding":"2px 0","margin":"0 auto 20px","color":"inherit","borderRadius":"4px","background":"none","width":"100%","fontSize":"inherit"}' class="upload" v-if="type!='info'&& !ro.yingxiangziliao" label="影像资料" prop="yingxiangziliao">
+					<file-upload
+						tip="点击上传影像资料"
+						action="file/upload"
+						:limit="1"
+						:type="3"
+						:multiple="true"
+						:fileUrls="ruleForm.yingxiangziliao?ruleForm.yingxiangziliao:''"
+						@change="yingxiangziliaoUploadChange"
+					></file-upload>
+				</el-form-item>  
+				<el-form-item :style='{"padding":"2px 0","margin":"0 auto 20px","color":"inherit","borderRadius":"4px","background":"none","width":"100%","fontSize":"inherit"}' v-else-if="ruleForm.yingxiangziliao" label="影像资料" prop="yingxiangziliao">
+					<el-button :style='{"border":"1px solid #ced4da","cursor":"pointer","padding":"0 30px","margin":"0 20px 0 0","outline":"none","color":"inherit","borderRadius":"4px","background":"none","width":"auto","lineHeight":"36px","fontSize":"14px","height":"40px"}' type="text" size="small" @click="download($base.url+ruleForm.yingxiangziliao)">下载</el-button>
+				</el-form-item>
+				<el-form-item :style='{"padding":"2px 0","margin":"0 auto 20px","color":"inherit","borderRadius":"4px","background":"none","width":"100%","fontSize":"inherit"}' v-else-if="!ruleForm.yingxiangziliao" label="影像资料" prop="yingxiangziliao">
+					<el-button :style='{"border":"1px solid #ced4da","cursor":"pointer","padding":"0 30px","margin":"0 20px 0 0","outline":"none","color":"inherit","borderRadius":"4px","background":"none","width":"auto","lineHeight":"36px","fontSize":"14px","height":"40px"}' type="text" size="small">无</el-button>
+				</el-form-item>
+			</template>
+				<el-form-item :style='{"padding":"2px 0","margin":"0 auto 20px","color":"inherit","borderRadius":"4px","background":"none","width":"100%","fontSize":"inherit"}' v-if="type!='info'"  label="详情介绍" prop="xiangqingjieshao">
+					<editor 
+						style="min-width: 200px; max-width: 600px;"
+						v-model="ruleForm.xiangqingjieshao" 
+						class="editor" 
+						action="file/upload">
+					</editor>
+				</el-form-item>
+				<el-form-item :style='{"padding":"2px 0","margin":"0 auto 20px","color":"inherit","borderRadius":"4px","background":"none","width":"100%","fontSize":"inherit"}' v-else-if="ruleForm.xiangqingjieshao" label="详情介绍" prop="xiangqingjieshao">
+                    <span :style='{"fontSize":"14px","lineHeight":"40px","color":"inherit","fontWeight":"500","display":"inline-block"}' v-html="ruleForm.xiangqingjieshao"></span>
+                </el-form-item>
+			<el-form-item :style='{"padding":"0","margin":"30px auto","alignItems":"center","textAlign":"center","background":"none","display":"flex","width":"60%","fontSize":"18px"}' class="btn">
+				<el-button class="btn3"  v-if="type!='info'" type="success" @click="onSubmit">
+					<span class="icon iconfont icon-tijiao16" :style='{"margin":"0 2px","fontSize":"inherit","color":"inherit","display":"none"}'></span>
+					确定
+				</el-button>
+				<el-button class="btn4" v-if="type!='info'" type="success" @click="back()">
+					<span class="icon iconfont icon-quxiao09" :style='{"margin":"0 2px","fontSize":"inherit","color":"inherit","display":"none"}'></span>
+					取消
+				</el-button>
+				<el-button class="btn5" v-if="type=='info'" type="success" @click="back()">
+					<span class="icon iconfont icon-fanhui01" :style='{"margin":"0 2px","fontSize":"inherit","color":"inherit","display":"none"}'></span>
+					返回
+				</el-button>
+			</el-form-item>
+		</el-form>
+    
+
+  </div>
+</template>
+<script>
+import { 
+	isNumber,
+	isIntNumer,
+} from "@/utils/validate";
+export default {
+	data() {
+		var validateNumber = (rule, value, callback) => {
+			if(!value){
+				callback();
+			} else if (!isNumber(value)) {
+				callback(new Error("请输入数字"));
+			} else {
+				callback();
+			}
+		};
+		var validateIntNumber = (rule, value, callback) => {
+			if(!value){
+				callback();
+			} else if (!isIntNumer(value)) {
+				callback(new Error("请输入整数"));
+			} else {
+				callback();
+			}
+		};
+		return {
+			id: '',
+			type: '',
+			
+			
+			ro:{
+				yingxiangmingcheng : false,
+				tupian : false,
+				yingxiangfenlei : false,
+				weixingshujuji : false,
+				yunliang : false,
+				fenbianlv : false,
+				diqu : false,
+				fabushijian : false,
+				bumen : false,
+				bumenzhanghao : false,
+				guanliyuanxingming : false,
+				yingxiangziliao : false,
+				xiangqingjieshao : false,
+			},
+			
+			
+			ruleForm: {
+				yingxiangmingcheng: '',
+				tupian: '',
+				yingxiangfenlei: '',
+				weixingshujuji: '',
+				yunliang: '',
+				fenbianlv: '',
+				diqu: '',
+				fabushijian: '',
+				bumen: '',
+				bumenzhanghao: '',
+				guanliyuanxingming: '',
+				yingxiangziliao: '',
+				xiangqingjieshao: '',
+			},
+		
+			yingxiangfenleiOptions: [],
+
+			
+			rules: {
+				yingxiangmingcheng: [
+				],
+				tupian: [
+				],
+				yingxiangfenlei: [
+				],
+				weixingshujuji: [
+				],
+				yunliang: [
+					{ validator: validateNumber, trigger: 'blur' },
+				],
+				fenbianlv: [
+					{ validator: validateIntNumber, trigger: 'blur' },
+				],
+				diqu: [
+				],
+				fabushijian: [
+				],
+				bumen: [
+				],
+				bumenzhanghao: [
+				],
+				guanliyuanxingming: [
+				],
+				yingxiangziliao: [
+					{ required: true, message: '影像资料不能为空', trigger: 'blur' },
+				],
+				xiangqingjieshao: [
+				],
+			}
+		};
+	},
+	props: ["parent"],
+	computed: {
+
+
+
+	},
+    components: {
+    },
+	created() {
+		this.ruleForm.fabushijian = this.getCurDate()
+	},
+	methods: {
+		
+		// 下载
+		download(file){
+			window.open(`${file}`)
+		},
+		// 初始化
+		init(id,type) {
+			if (id) {
+				this.id = id;
+				this.type = type;
+			}
+			if(this.type=='info'||this.type=='else'){
+				this.info(id);
+			}else if(this.type=='logistics'){
+				this.logistics=false;
+				this.info(id);
+			}else if(this.type=='cross'){
+				var obj = this.$storage.getObj('crossObj');
+				for (var o in obj){
+						if(o=='yingxiangmingcheng'){
+							this.ruleForm.yingxiangmingcheng = obj[o];
+							this.ro.yingxiangmingcheng = true;
+							continue;
+						}
+						if(o=='tupian'){
+							this.ruleForm.tupian = obj[o];
+							this.ro.tupian = true;
+							continue;
+						}
+						if(o=='yingxiangfenlei'){
+							this.ruleForm.yingxiangfenlei = obj[o];
+							this.ro.yingxiangfenlei = true;
+							continue;
+						}
+						if(o=='weixingshujuji'){
+							this.ruleForm.weixingshujuji = obj[o];
+							this.ro.weixingshujuji = true;
+							continue;
+						}
+						if(o=='yunliang'){
+							this.ruleForm.yunliang = obj[o];
+							this.ro.yunliang = true;
+							continue;
+						}
+						if(o=='fenbianlv'){
+							this.ruleForm.fenbianlv = obj[o];
+							this.ro.fenbianlv = true;
+							continue;
+						}
+						if(o=='diqu'){
+							this.ruleForm.diqu = obj[o];
+							this.ro.diqu = true;
+							continue;
+						}
+						if(o=='fabushijian'){
+							this.ruleForm.fabushijian = obj[o];
+							this.ro.fabushijian = true;
+							continue;
+						}
+						if(o=='bumen'){
+							this.ruleForm.bumen = obj[o];
+							this.ro.bumen = true;
+							continue;
+						}
+						if(o=='bumenzhanghao'){
+							this.ruleForm.bumenzhanghao = obj[o];
+							this.ro.bumenzhanghao = true;
+							continue;
+						}
+						if(o=='guanliyuanxingming'){
+							this.ruleForm.guanliyuanxingming = obj[o];
+							this.ro.guanliyuanxingming = true;
+							continue;
+						}
+						if(o=='yingxiangziliao'){
+							this.ruleForm.yingxiangziliao = obj[o];
+							this.ro.yingxiangziliao = true;
+							continue;
+						}
+						if(o=='xiangqingjieshao'){
+							this.ruleForm.xiangqingjieshao = obj[o];
+							this.ro.xiangqingjieshao = true;
+							continue;
+						}
+				}
+			}
+			// 获取用户信息
+			this.$http({
+				url: `${this.$storage.get('sessionTable')}/session`,
+				method: "get"
+			}).then(({ data }) => {
+				if (data && data.code === 0) {
+					var json = data.data;
+					if(((json.bumen!=''&&json.bumen) || json.bumen==0) && this.$storage.get("role")!="管理员"){
+						this.ruleForm.bumen = json.bumen
+						this.ro.bumen = true;
+					}
+					if(((json.bumenzhanghao!=''&&json.bumenzhanghao) || json.bumenzhanghao==0) && this.$storage.get("role")!="管理员"){
+						this.ruleForm.bumenzhanghao = json.bumenzhanghao
+						this.ro.bumenzhanghao = true;
+					}
+					if(((json.guanliyuanxingming!=''&&json.guanliyuanxingming) || json.guanliyuanxingming==0) && this.$storage.get("role")!="管理员"){
+						this.ruleForm.guanliyuanxingming = json.guanliyuanxingming
+						this.ro.guanliyuanxingming = true;
+					}
+				} else {
+					this.$message.error(data.msg);
+				}
+			});
+            this.$http({
+				url: `option/yingxiangfenlei/yingxiangfenlei`,
+				method: "get"
+            }).then(({ data }) => {
+				if (data && data.code === 0) {
+					this.yingxiangfenleiOptions = data.data;
+				} else {
+					this.$message.error(data.msg);
+				}
+            });
+			
+		},
+    // 多级联动参数
+
+    info(id) {
+      this.$http({
+        url: `yaoganyingxiang/info/${id}`,
+        method: "get"
+      }).then(({ data }) => {
+        if (data && data.code === 0) {
+        this.ruleForm = data.data;
+        //解决前台上传图片后台不显示的问题
+        let reg=new RegExp('../../../upload','g')//g代表全部
+        this.ruleForm.xiangqingjieshao = this.ruleForm.xiangqingjieshao.replace(reg,'../../../springboot8y33r15q/upload');
+        } else {
+          this.$message.error(data.msg);
+        }
+      });
+    },
+
+
+    // 提交
+    onSubmit() {
+	if(this.ruleForm.tupian!=null) {
+		this.ruleForm.tupian = this.ruleForm.tupian.replace(new RegExp(this.$base.url,"g"),"");
+	}
+	if(this.ruleForm.yingxiangziliao!=null) {
+		this.ruleForm.yingxiangziliao = this.ruleForm.yingxiangziliao.replace(new RegExp(this.$base.url,"g"),"");
+	}
+var objcross = this.$storage.getObj('crossObj');
+      //更新跨表属性
+       var crossuserid;
+       var crossrefid;
+       var crossoptnum;
+       if(this.type=='cross'){
+                var statusColumnName = this.$storage.get('statusColumnName');
+                var statusColumnValue = this.$storage.get('statusColumnValue');
+                if(statusColumnName!='') {
+                        var obj = this.$storage.getObj('crossObj');
+                       if(statusColumnName && !statusColumnName.startsWith("[")) {
+                               for (var o in obj){
+                                 if(o==statusColumnName){
+                                   obj[o] = statusColumnValue;
+                                 }
+                               }
+                               var table = this.$storage.get('crossTable');
+                             this.$http({
+                                 url: `${table}/update`,
+                                 method: "post",
+                                 data: obj
+                               }).then(({ data }) => {});
+                       } else {
+                               crossuserid=this.$storage.get('userid');
+                               crossrefid=obj['id'];
+                               crossoptnum=this.$storage.get('statusColumnName');
+                               crossoptnum=crossoptnum.replace(/\[/,"").replace(/\]/,"");
+                        }
+                }
+        }
+		this.$refs["ruleForm"].validate(valid => {
+			if (valid) {
+				if(crossrefid && crossuserid) {
+					this.ruleForm.crossuserid = crossuserid;
+					this.ruleForm.crossrefid = crossrefid;
+					let params = { 
+						page: 1, 
+						limit: 10, 
+						crossuserid:this.ruleForm.crossuserid,
+						crossrefid:this.ruleForm.crossrefid,
+					} 
+				this.$http({ 
+					url: "yaoganyingxiang/page", 
+					method: "get", 
+					params: params 
+				}).then(({ 
+					data 
+				}) => { 
+					if (data && data.code === 0) { 
+						if(data.data.total>=crossoptnum) {
+							this.$message.error(this.$storage.get('tips'));
+							return false;
+						} else {
+							this.$http({
+								url: `yaoganyingxiang/${!this.ruleForm.id ? "save" : "update"}`,
+								method: "post",
+								data: this.ruleForm
+							}).then(({ data }) => {
+								if (data && data.code === 0) {
+									this.$message({
+										message: "操作成功",
+										type: "success",
+										duration: 1500,
+										onClose: () => {
+											this.parent.showFlag = true;
+											this.parent.addOrUpdateFlag = false;
+											this.parent.yaoganyingxiangCrossAddOrUpdateFlag = false;
+											this.parent.search();
+											this.parent.contentStyleChange();
+										}
+									});
+								} else {
+									this.$message.error(data.msg);
+								}
+							});
+
+						}
+					} else { 
+				} 
+			});
+		} else {
+			this.$http({
+				url: `yaoganyingxiang/${!this.ruleForm.id ? "save" : "update"}`,
+				method: "post",
+			   data: this.ruleForm
+			}).then(({ data }) => {
+				if (data && data.code === 0) {
+					this.$message({
+						message: "操作成功",
+						type: "success",
+						duration: 1500,
+						onClose: () => {
+							this.parent.showFlag = true;
+							this.parent.addOrUpdateFlag = false;
+							this.parent.yaoganyingxiangCrossAddOrUpdateFlag = false;
+							this.parent.search();
+							this.parent.contentStyleChange();
+						}
+					});
+				} else {
+					this.$message.error(data.msg);
+			   }
+			});
+		 }
+         }
+		});
+    },
+    // 获取uuid
+    getUUID () {
+      return new Date().getTime();
+    },
+    // 返回
+    back() {
+      this.parent.showFlag = true;
+      this.parent.addOrUpdateFlag = false;
+      this.parent.yaoganyingxiangCrossAddOrUpdateFlag = false;
+      this.parent.contentStyleChange();
+    },
+    tupianUploadChange(fileUrls) {
+	    this.ruleForm.tupian = fileUrls;
+    },
+    yingxiangziliaoUploadChange(fileUrls) {
+	    this.ruleForm.yingxiangziliao = fileUrls;
+    },
+  }
+};
+</script>
+<style lang="scss" scoped>
+	.amap-wrapper {
+		width: 100%;
+		height: 500px;
+	}
+	
+	.search-box {
+		position: absolute;
+	}
+	
+	.el-date-editor.el-input {
+		width: auto;
+	}
+	
+	.add-update-preview .el-form-item ::v-deep .el-form-item__label {
+	  	  padding: 0 10px 0 0;
+	  	  color: #00acc1;
+	  	  background: none;
+	  	  font-weight: 600;
+	  	  display: inline-block;
+	  	  width: 200px;
+	  	  font-size: inherit;
+	  	  line-height: 40px;
+	  	  text-align: right;
+	  	}
+	
+	.add-update-preview .el-form-item ::v-deep .el-form-item__content {
+	  margin-left: 200px;
+	}
+	
+	.add-update-preview .el-input ::v-deep .el-input__inner {
+	  	  border-radius: 4px;
+	  	  padding: 0 12px;
+	  	  box-shadow: 0 0 0px rgba(64, 158, 255, .5);
+	  	  outline: none;
+	  	  color: inherit;
+	  	  background: #fff;
+	  	  width: 400px;
+	  	  font-size: 14px;
+	  	  border-color: #ced4da;
+	  	  border-width: 1px;
+	  	  border-style: solid;
+	  	  height: 36px;
+	  	}
+	.add-update-preview .el-input-number ::v-deep .el-input__inner {
+		text-align: left;
+	  	  border-radius: 4px;
+	  	  padding: 0 12px;
+	  	  box-shadow: 0 0 0px rgba(64, 158, 255, .5);
+	  	  outline: none;
+	  	  color: inherit;
+	  	  background: #fff;
+	  	  width: 400px;
+	  	  font-size: 14px;
+	  	  border-color: #ced4da;
+	  	  border-width: 1px;
+	  	  border-style: solid;
+	  	  height: 36px;
+	  	}
+	.add-update-preview .el-input-number ::v-deep .el-input-number__decrease {
+		display: none;
+	}
+	.add-update-preview .el-input-number ::v-deep .el-input-number__increase {
+		display: none;
+	}
+	
+	.add-update-preview .el-select ::v-deep .el-input__inner {
+	  	  padding: 0 10px;
+	  	  color: inherit;
+	  	  font-size: 14px;
+	  	  border-color: #ced4da;
+	  	  border-radius: 0px;
+	  	  box-shadow: 0 0 0px rgba(64, 158, 255, .5);
+	  	  outline: none;
+	  	  background: #fff;
+	  	  width: auto;
+	  	  border-width: 1px;
+	  	  border-style: solid;
+	  	  min-width: 350px;
+	  	  height: 36px;
+	  	}
+	
+	.add-update-preview .el-date-editor ::v-deep .el-input__inner {
+	  	  padding: 0 10px 0 30px;
+	  	  color: inherit;
+	  	  font-size: 14px;
+	  	  border-color: #ced4da;
+	  	  border-radius: 0px;
+	  	  box-shadow: 0 0 0px rgba(64, 158, 255, .5);
+	  	  outline: none;
+	  	  background: none;
+	  	  width: auto;
+	  	  border-width: 1px;
+	  	  border-style: solid;
+	  	  min-width: 250px;
+	  	  height: 36px;
+	  	}
+	
+	.add-update-preview ::v-deep .el-upload--picture-card {
+		background: transparent;
+		border: 0;
+		border-radius: 0;
+		width: auto;
+		height: auto;
+		line-height: initial;
+		vertical-align: middle;
+	}
+	
+	.add-update-preview ::v-deep .upload .upload-img {
+	  	  border: 1px solid #ced4da;
+	  	  cursor: pointer;
+	  	  border-radius: 4px;
+	  	  color: #aaa;
+	  	  background: #fff;
+	  	  object-fit: cover;
+	  	  width: 180px;
+	  	  font-size: 32px;
+	  	  line-height: 80px;
+	  	  text-align: center;
+	  	  height: 80px;
+	  	}
+	
+	.add-update-preview ::v-deep .el-upload-list .el-upload-list__item {
+	  	  border: 1px solid #ced4da;
+	  	  cursor: pointer;
+	  	  border-radius: 4px;
+	  	  color: #aaa;
+	  	  background: #fff;
+	  	  object-fit: cover;
+	  	  width: 180px;
+	  	  font-size: 32px;
+	  	  line-height: 80px;
+	  	  text-align: center;
+	  	  height: 80px;
+	  	}
+	
+	.add-update-preview ::v-deep .el-upload .el-icon-plus {
+	  	  border: 1px solid #ced4da;
+	  	  cursor: pointer;
+	  	  border-radius: 4px;
+	  	  color: #aaa;
+	  	  background: #fff;
+	  	  object-fit: cover;
+	  	  width: 180px;
+	  	  font-size: 32px;
+	  	  line-height: 80px;
+	  	  text-align: center;
+	  	  height: 80px;
+	  	}
+	
+	.add-update-preview .el-textarea ::v-deep .el-textarea__inner {
+	  	  border: 1px solid #ced4da;
+	  	  border-radius: 4px;
+	  	  padding: 12px;
+	  	  box-shadow: 0 0 0px rgba(64, 158, 255, .5);
+	  	  outline: none;
+	  	  color: inherit;
+	  	  background: #fff;
+	  	  width: 500px;
+	  	  font-size: 14px;
+	  	  height: 140px;
+	  	}
+	
+	.add-update-preview .btn .btn1 {
+				border: 0px solid #3fcbca;
+				cursor: pointer;
+				padding: 0 10px;
+				margin: 0px 4px;
+				color: #fff;
+				display: inline-block;
+				font-size: 14px;
+				line-height: 40px;
+				border-radius: 4px;
+				outline: none;
+				background: #4b88e4;
+				width: auto;
+				min-width: 90px;
+				height: 40px;
+			}
+	
+	.add-update-preview .btn .btn1:hover {
+				opacity: 0.8;
+			}
+	
+	.add-update-preview .btn .btn2 {
+				border: 0px solid #23b7e5;
+				cursor: pointer;
+				padding: 0 10px;
+				margin: 0px 4px;
+				color: #fff;
+				font-size: 14px;
+				line-height: 40px;
+				border-radius: 4px;
+				outline: none;
+				background: #4b88e4;
+				width: auto;
+				min-width: 90px;
+				height: 40px;
+			}
+	
+	.add-update-preview .btn .btn2:hover {
+				opacity: 0.8;
+			}
+	
+	.add-update-preview .btn .btn3 {
+				border: 0px solid #3fcbca;
+				cursor: pointer;
+				padding: 0 20px;
+				margin: 0px 4px;
+				color: #fff;
+				font-size: 14px;
+				line-height: 40px;
+				border-radius: 4px;
+				outline: none;
+				background: #4b88e4;
+				width: auto;
+				min-width: 90px;
+				height: 40px;
+			}
+	
+	.add-update-preview .btn .btn3:hover {
+				opacity: 0.8;
+			}
+	
+	.add-update-preview .btn .btn4 {
+				border: 0px solid #FF6B6B;
+				cursor: pointer;
+				padding: 0 20px;
+				margin: 0px 4px;
+				color: #fff;
+				font-size: 14px;
+				line-height: 40px;
+				border-radius: 4px;
+				outline: none;
+				background: #00acc1;
+				width: auto;
+				min-width: 90px;
+				height: 40px;
+			}
+	
+	.add-update-preview .btn .btn4:hover {
+				opacity: 0.8;
+			}
+	
+	.add-update-preview .btn .btn5 {
+				border: 0px solid #65C3DF;
+				cursor: pointer;
+				padding: 0 20px;
+				margin: 4px;
+				color: #fff;
+				font-size: 14px;
+				line-height: 40px;
+				border-radius: 4px;
+				outline: none;
+				background: #00acc1;
+				width: auto;
+				min-width: 90px;
+				height: 40px;
+			}
+	
+	.add-update-preview .btn .btn5:hover {
+				opacity: 0.8;
+			}
+</style>
